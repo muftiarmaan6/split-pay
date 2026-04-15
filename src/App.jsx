@@ -1,8 +1,31 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import BalanceCard from './components/BalanceCard';
-import ExpensePanel from './components/ExpensePanel';
 import Toast, { useToast } from './components/Toast';
+
+// Lazy load ExpensePanel for code splitting — improves initial load time
+const ExpensePanel = lazy(() => import('./components/ExpensePanel'));
+
+// Skeleton fallback shown while ExpensePanel lazy-loads
+function PanelSkeleton() {
+  return (
+    <div className="w-full max-w-2xl mx-auto mt-6 space-y-6 animate-pulse">
+      <div className="bg-card rounded-2xl border border-gray-900 p-6">
+        <div className="h-6 w-32 bg-gray-800 rounded mb-4" />
+        <div className="h-4 w-64 bg-gray-800 rounded mb-6" />
+        <div className="space-y-3">
+          <div className="h-10 bg-gray-800 rounded-lg" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-10 bg-gray-800 rounded-lg" />
+            <div className="h-10 bg-gray-800 rounded-lg" />
+          </div>
+          <div className="h-10 bg-gray-800 rounded-lg" />
+          <div className="h-12 bg-gray-700 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [publicKey, setPublicKey] = useState("");
@@ -11,7 +34,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-text flex flex-col font-sans">
       {/* Toast Notifications */}
-      <Toast toasts={toasts} onDismiss={(id) => {}} />
+      <Toast toasts={toasts} onDismiss={() => {}} />
 
       {/* Navigation & Wallet Connect */}
       <Navbar publicKey={publicKey} setPublicKey={setPublicKey} />
@@ -42,7 +65,10 @@ function App() {
         ) : (
           <div className="w-full mt-6 sm:mt-10">
             <BalanceCard publicKey={publicKey} />
-            <ExpensePanel publicKey={publicKey} addToast={addToast} />
+            {/* Suspense boundary — shows skeleton while ExpensePanel bundle loads */}
+            <Suspense fallback={<PanelSkeleton />}>
+              <ExpensePanel publicKey={publicKey} addToast={addToast} />
+            </Suspense>
           </div>
         )}
       </main>
