@@ -49,16 +49,14 @@ export default function WalletModal({ isOpen, onClose, onConnect }) {
         }
 
       } else if (wallet.id === 'albedo') {
-        // Check for Albedo — it's web-based, try dynamic import
-        try {
-          const albedo = await import('albedo-link');
-          const result = await albedo.default.publicKey({});
-          if (result?.pubkey) {
-            onConnect(result.pubkey);
-            onClose();
-          }
-        } catch {
-          throw new Error('Albedo wallet is not available. Please ensure pop-ups are enabled or install the Albedo extension.');
+        // Check for Albedo — it uses a web-based popup
+        if (!window.albedo) {
+          throw new Error('Albedo wallet is not available. Please visit albedo.link to use the web-based wallet.');
+        }
+        const result = await window.albedo.publicKey({});
+        if (result?.pubkey) {
+          onConnect(result.pubkey);
+          onClose();
         }
       }
 

@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as StellarSdk from '@stellar/stellar-sdk';
-import { kit } from '../lib/swk';
 
 const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
@@ -116,13 +115,26 @@ export default function ExpensePanel({ publicKey }) {
       // 2. Prepare transaction via Soroban API
       transaction = await sorobanServer.prepareTransaction(transaction);
 
-      // 3. Sign with StellarWalletsKit
-      const { signedTxXdr, error: signError } = await kit.signTransaction(
-        transaction.toXDR(),
-        { network: 'TESTNET', networkPassphrase }
-      );
-      if (signError) throw new Error(signError.message || 'Signing rejected');
-      const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+      // 3. Sign with Freighter
+      const freighterApi = await import('@stellar/freighter-api');
+      const signResult = await freighterApi.signTransaction(transaction.toXDR(), {
+        network: 'TESTNET',
+        networkPassphrase,
+      });
+      
+      // Handle v6 API — signResult can be string or { signedTxXdr, error }
+      let signedXdr;
+      if (typeof signResult === 'string') {
+        signedXdr = signResult;
+      } else if (signResult.signedTxXdr) {
+        signedXdr = signResult.signedTxXdr;
+      } else if (signResult.error) {
+        throw new Error(signResult.error);
+      } else {
+        throw new Error('Signing was rejected by user.');
+      }
+
+      const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, networkPassphrase);
 
       // 4. Submit to Soroban RPC
       const sendResponse = await sorobanServer.sendTransaction(signedTx);
