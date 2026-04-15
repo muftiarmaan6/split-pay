@@ -35,6 +35,9 @@ impl SplitPayContract {
         env.storage().instance().set(&count, &expense);
         env.storage().instance().set(&Symbol::new(&env, "count"), &count);
         
+        // Emit an Event for Real-Time Synchronization
+        env.events().publish((Symbol::new(&env, "expense"), Symbol::new(&env, "added")), (count, payer.clone(), amount, description.clone()));
+        
         count
     }
 
@@ -45,5 +48,8 @@ impl SplitPayContract {
         expense.is_settled = true;
         
         env.storage().instance().set(&expense_id, &expense);
+        
+        // Emit an Event upon settlement
+        env.events().publish((Symbol::new(&env, "expense"), Symbol::new(&env, "settled")), (expense_id, payer.clone()));
     }
 }
