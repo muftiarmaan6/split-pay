@@ -308,7 +308,7 @@ Run with: `npm test`
 
 **Screenshot: Test Output**
 
-<img width="700" alt="16 tests passing in Vitest" src="./public/tests-passing.png">
+<img width="700" alt="16 tests passing in Vitest" src="./public/screenshots/tests-passing.png">
 
 ### 🔄 Loading States & Progress Indicators
 
