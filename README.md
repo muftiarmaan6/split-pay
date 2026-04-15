@@ -1,6 +1,6 @@
-# 💸 SplitPay — Decentralized Expense Splitting
-
 **SplitPay** is a premium, blockchain-based expense splitting application built on the **Stellar Network**. It allows users to seamlessly split bills, calculate shares, and settle debts directly using XLM on the Stellar Testnet.
+
+🔗 **Live Demo**: [https://split-pay-eta.vercel.app/](https://split-pay-eta.vercel.app/)
 
 ---
 
@@ -42,6 +42,31 @@ In this level, I have built a fully functional Stellar dApp that:
 - **Blockchain**: [Stellar Network](https://www.stellar.org/) (Testnet)
 - **API/SDK**: [@stellar/stellar-sdk](https://www.npmjs.com/package/@stellar/stellar-sdk), [@stellar/freighter-api](https://www.npmjs.com/package/@stellar/freighter-api)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+
+---
+
+## 🏗️ System Architecture & Design
+
+SplitPay follows a decentralized client-side architecture that interacts directly with the Stellar blockchain through the Horizon API and the Freighter wallet provider.
+
+### 🧩 Core Components
+1. **Frontend Layer**: A responsive React SPA styled with Tailwind CSS, responsible for UI/UX and calculation logic.
+2. **Provider Layer (Freighter)**: Handles secure wallet connection and transaction signing without exposing private keys.
+3. **Blockchain Layer (Stellar)**: The source of truth for balances and the settlement ledger for all payments.
+
+### 🔄 Data Flow
+```mermaid
+graph TD
+    User((User)) -->|Connect Wallet| Freighter{Freighter Extension}
+    User -->|Enter Bill Data| App[React Frontend]
+    App -->|Calculate Share| Logic[Split Logic]
+    Logic -->|Create XDR| SDK[Stellar SDK]
+    SDK -->|Request Signature| Freighter
+    Freighter -->|Signed Transaction| SDK
+    SDK -->|Submit| Horizon[Stellar Horizon API]
+    Horizon -->|Success/Hash| App
+    Horizon -->|Update Balance| App
+```
 
 ---
 
