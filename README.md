@@ -12,14 +12,18 @@ This project is a successful submission for both the **Stellar Level 1 (White Be
 In this level, I have built a fully functional Stellar dApp that:
 - ✅ Connects natively to **multiple wallets** via StellarWalletsKit (Freighter, xBull, Albedo).
 - ✅ Fetches and displays real-time **XLM Balances** from the Stellar Testnet.
-- ✅ Executes **Native XLM Transactions** to settle shared expenses.
-- ✅ Provides immediate **Transaction Feedback** (hashes and success states).
+- ✅ Employs a **LIVE Soroban Smart Contract** on Testnet to verify and mark debts as settled.
+- ✅ Streams **Real-Time Blockchain Events** directly into the UI upon payments.
 - ✅ Detects unsupported wallets and **Insufficient Funds**, displaying robust error handling.
-- ✅ Scaffolds the foundation for **Soroban Smart Contracts** to log debts on-chain.
 
 ---
 
-## 📸 Screenshots
+## 🔗 Verifiable On-Chain Data
+
+To fulfill Level 2 Submission Requirements, the live Smart Contract details are transparently listed below:
+
+- **Deployed Contract Address:** `CBQYYD4Q2Q5S7YF7B6VEXOQ7E54O5PBM4TNYTFXL6A52Q7X75BHTO4X3`
+- **Example Contract Call Hash:** `6a09f3ed1b7ef3c4...` (Viewable on Stellar Expert via the UI)
 
 | Wallet Connected & Balance | Transaction Success & Feedback |
 |:---:|:---:|
@@ -31,9 +35,9 @@ In this level, I have built a fully functional Stellar dApp that:
 
 - **Multi-Wallet Support**: Powered by `StellarWalletsKit`, letting users connect their preferred Stellar ecosystem wallet.
 - **Dynamic Split Logic**: Input a total bill and the number of people; the app instantly calculates your precise share.
-- **One-Click Settlement**: Pay the calculated share directly to the person who covered the bill with a single transaction.
+- **Soroban Smart Contracts**: Debts are validated by `invokeHostFunction` payloads piped into our native `mark_settled` contract.
+- **Event Streaming**: UI polls Soroban RPC to synchronize Ledger events actively emitted by the Smart Contract.
 - **Robust Error Handling**: Real-time checking for un-funded accounts, declined transactions, and Horizon network issues.
-- **Soroban Ready**: Contract scaffolding is set up (`lib.rs`) to migrate the debts to on-chain state vectors.
 - **Premium Dark UI**: Built with a modern, glassmorphic aesthetic using Tailwind CSS.
 
 ---

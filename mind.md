@@ -29,10 +29,11 @@ SplitX is a blockchain-based expense splitting app that allows users to split bi
 
 🟡 Level 2
 	•	[x] Multi-wallet support
-	•	[x] Contract deployed (scaffolded)
-	•	[x] Contract interaction (scaffolded)
-	•	[x] Debt tracking on-chain (scaffolded)
+	•	[x] Contract deployed
+	•	[x] Contract interaction
+	•	[x] Debt tracking on-chain
 	•	[x] Error handling
+	•	[x] Real-time event handling added
 
 🟠 Level 3
 	•	[ ] Dashboard
@@ -52,8 +53,9 @@ SplitX is a blockchain-based expense splitting app that allows users to split bi
 Level 2 (Yellow Belt) is COMPLETE.
 - Integrated StellarWalletsKit for comprehensive multi-wallet support.
 - Added graceful error handling and insufficient funds catching for transactions.
-- Scaffolded Soroban smart contracts (`lib.rs`) to store and track debts on-chain.
-- 5 Git commits successfully logged.
+- Written, compiled, and actively interacting with Live Soroban Smart Contracts for on-chain debts.
+- Established polling architecture using Soroban RPC to fetch and render Event Streams in real-time.
+- 5+ Git commits successfully logged.
 
 🧱 Next Steps
 
