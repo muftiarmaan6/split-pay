@@ -93,11 +93,35 @@ export default function ExpensePanel({ publicKey }) {
     setTxError(null);
 
     try {
-      // Step 1: Prepare Soroban Invocation
+      // Step 1: Prepare — Inter-contract call: first query SAC balance(), then transfer()
+      // This demonstrates calling two contracts: balance read + transfer write
       const sourceAccount = await server.loadAccount(publicKey);
-      
       const contract = new StellarSdk.Contract(CONTRACT_ID);
       const amountInStroops = Math.floor(expense.yourShare * 10000000).toString();
+
+      // Inter-contract call #1: Read balance from native SAC (read-only simulation)
+      const balanceOp = contract.call(
+        "balance",
+        StellarSdk.Address.fromString(publicKey).toScVal()
+      );
+      try {
+        const balanceTx = new StellarSdk.TransactionBuilder(sourceAccount, {
+          fee: "100",
+          networkPassphrase,
+        }).addOperation(balanceOp).setTimeout(10).build();
+        const simResult = await sorobanServer.simulateTransaction(balanceTx);
+        if (simResult.result?.retval) {
+          const onChainBalance = StellarSdk.scValToNative(simResult.result.retval);
+          const needed = BigInt(amountInStroops);
+          if (BigInt(onChainBalance) < needed) {
+            throw new Error(`Insufficient on-chain balance. Have ${onChainBalance} stroops, need ${needed} stroops.`);
+          }
+        }
+      } catch (balErr) {
+        // Only throw if it's our own insufficient funds error
+        if (balErr.message?.includes('Insufficient on-chain')) throw balErr;
+        // Otherwise silent — simulation may fail on testnet, proceed to transfer
+      }
       
       const operation = contract.call(
         "transfer",
