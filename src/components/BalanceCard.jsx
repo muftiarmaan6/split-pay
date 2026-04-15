@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as StellarSdk from '@stellar/stellar-sdk';
+import { getCache, setCache } from '../lib/cache';
 
 const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
@@ -7,16 +8,32 @@ const server = new StellarSdk.Horizon.Server(horizonUrl);
 export default function BalanceCard({ publicKey }) {
   const [balance, setBalance] = useState("0.00");
   const [isLoading, setIsLoading] = useState(true);
+  const [isStale, setIsStale] = useState(false); // showing cached data
   const [error, setError] = useState("");
 
-  const fetchBalance = async () => {
+  const fetchBalance = async (useCache = true) => {
+    // Serve from cache immediately if fresh
+    if (useCache) {
+      const cached = getCache(`balance_${publicKey}`);
+      if (cached !== null) {
+        setBalance(cached);
+        setIsLoading(false);
+        setIsStale(true);
+        // Still revalidate in background
+        fetchBalance(false);
+        return;
+      }
+    }
     setIsLoading(true);
+    setIsStale(false);
     setError("");
     try {
       const account = await server.loadAccount(publicKey);
       const nativeBalance = account.balances.find((b) => b.asset_type === "native");
       if (nativeBalance) {
-        setBalance(parseFloat(nativeBalance.balance).toFixed(2));
+        const formatted = parseFloat(nativeBalance.balance).toFixed(2);
+        setBalance(formatted);
+        setCache(`balance_${publicKey}`, formatted, 30); // cache 30s
       }
     } catch (err) {
       if (err.response && err.response.status === 404) {
@@ -79,7 +96,7 @@ export default function BalanceCard({ publicKey }) {
         <svg className={`w-4 h-4 ${isLoading ? 'animate-spin text-primary' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
         </svg>
-        {isLoading ? 'Updating...' : 'Refresh Balance'}
+        {isLoading ? 'Updating...' : isStale ? '⚡ Cached · Refresh' : 'Refresh Balance'}
       </button>
     </div>
   );
