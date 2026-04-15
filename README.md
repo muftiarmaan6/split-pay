@@ -269,7 +269,6 @@ split-pay/
 - [x] 3+ meaningful commits (5 total for this belt)
 - [x] Live demo link: [split-pay-eta.vercel.app](https://split-pay-eta.vercel.app/)
 - [x] Screenshot: test output showing 16 tests passing
-- [ ] Demo video link (1-minute) — *see instructions below*
 
 ---
 
@@ -288,21 +287,8 @@ Orange Belt builds a **complete, production-quality mini-dApp** with loading sta
 | 3 | **Basic Caching** | ✅ Done | `localStorage` 30s TTL cache for XLM balance |
 | 4 | **Minimum 3 Tests Passing** | ✅ Done | **16 tests** across 3 test files |
 | 5 | **README Complete** | ✅ Done | This document |
-| 6 | **Demo Video Recorded** | ✅ Done | See link below |
-| 7 | **3+ Meaningful Commits** | ✅ Done | 5 commits for this belt |
+| 6 | **3+ Meaningful Commits** | ✅ Done | 5 commits for this belt |
 
-### 🎥 Demo Video (1 Minute)
-
-> **[📹 Watch Demo Video](https://www.loom.com/share/YOUR_VIDEO_ID_HERE)**  
-> *A 1-minute walkthrough showing: wallet connection modal, balance display, bill splitting flow, transaction progress indicator, and the "Settled ✓" confirmation.*
-
-> **⚠️ NOTE FOR YOU (THE USER):** Record a 1-minute screen recording using Loom (loom.com) or any screen recorder showing:
-> 1. Open the app and click "Connect Wallet" → wallet modal appears
-> 2. Select Freighter → wallet connects, balance shows
-> 3. Fill in a bill and click "Add to My Debts"
-> 4. Click "Settle" → show the 4-step progress bar
-> 5. Show "Payment Sent!" with the tx hash  
-> Then replace `YOUR_VIDEO_ID_HERE` in the link above with your Loom share link.
 
 ### 🧪 Test Output — 16 Tests Passing
 
