@@ -170,7 +170,7 @@ export default function ExpensePanel({ publicKey }) {
       style={{ animationDelay: '200ms', animationFillMode: 'both' }}
     >
       {/* ── Add Expense Form ── */}
-      <div className="bg-card rounded-2xl border border-gray-900 shadow-[0_0_20px_rgba(168,85,247,0.1)] p-6">
+      <div className="bg-card rounded-2xl border border-gray-900 shadow-[0_0_20px_rgba(168,85,247,0.1)] p-4 sm:p-6">
         <h3 className="text-xl font-bold mb-1">Split a Bill</h3>
         <p className="text-textMuted text-sm mb-5">
           Someone already paid the full bill. Enter the details below and we'll
@@ -193,7 +193,7 @@ export default function ExpensePanel({ publicKey }) {
           </div>
 
           {/* Total amount + number of people */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-textMuted mb-1">
                 Total Bill Amount (XLM)

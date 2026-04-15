@@ -64,8 +64,8 @@ export default function BalanceCard({ publicKey }) {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-card rounded-2xl border border-gray-900 shadow-[0_0_20px_rgba(168,85,247,0.15)] p-6 animate-fade-in-up mt-6">
-      <h3 className="text-textMuted text-sm font-medium uppercase tracking-wider mb-2">Available Balance</h3>
+    <div className="w-full max-w-sm mx-auto bg-card rounded-2xl border border-gray-900 shadow-[0_0_20px_rgba(168,85,247,0.15)] p-5 sm:p-6 animate-fade-in-up mt-4 sm:mt-6">
+      <h3 className="text-textMuted text-xs sm:text-sm font-medium uppercase tracking-wider mb-2">Available Balance</h3>
       
       {isLoading ? (
         <div className="h-10 w-32 bg-gray-900 rounded animate-pulse my-2"></div>
