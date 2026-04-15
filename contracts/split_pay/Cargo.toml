@@ -1,0 +1,13 @@
+[package]
+name = "split_pay"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = "22.2.1"
+
+[dev_dependencies]
+soroban-sdk = { version = "22.2.1", features = ["testutils"] }
