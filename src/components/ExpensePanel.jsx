@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import * as StellarSdk from '@stellar/stellar-sdk';
-import { signTransaction } from '@stellar/freighter-api';
+import { kit } from '../lib/swk';
 
 const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
@@ -78,10 +78,10 @@ export default function ExpensePanel({ publicKey }) {
         .setTimeout(30)
         .build();
 
-      // 3. Sign with Freighter
-      const { signedTxXdr, error: signError } = await signTransaction(
+      // 3. Sign with StellarWalletsKit
+      const { signedTxXdr, error: signError } = await kit.signTransaction(
         transaction.toXDR(),
-        { networkPassphrase }
+        { network: 'TESTNET', networkPassphrase }
       );
       if (signError) throw new Error(signError.message || 'Signing rejected');
       const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
@@ -96,7 +96,11 @@ export default function ExpensePanel({ publicKey }) {
       ));
     } catch (err) {
       console.error(err);
-      setTxError('Transaction failed or was rejected.');
+      if (err.response && err.response.data && err.response.data.extras) {
+        setTxError(`Horizon Error: ${err.response.data.title} - Ensure you have enough XLM.`);
+      } else {
+        setTxError(err.message || 'Transaction failed or was rejected by user.');
+      }
     }
 
     setIsTxPending(false);
