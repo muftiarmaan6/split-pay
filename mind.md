@@ -36,10 +36,12 @@ SplitX is a blockchain-based expense splitting app that allows users to split bi
 	•	[x] Real-time event handling added
 
 🟠 Level 3
-	•	[ ] Dashboard
-	•	[ ] Expense history
-	•	[ ] Debt minimization logic
-	•	[ ] Tests added
+	•	[x] Loading states (4-step transaction progress indicator)
+	•	[x] Balance caching (localStorage, 30s TTL)
+	•	[x] Unit tests added (16 tests across 3 files — Vitest)
+	•	[x] README complete with test output and docs
+	•	[x] Demo video recorded (Loom — 1 min)
+	•	[x] 5 meaningful git commits
 
 🟢 Level 4
 	•	[ ] Group expenses
@@ -50,13 +52,14 @@ SplitX is a blockchain-based expense splitting app that allows users to split bi
 
 📊 Current Status
 
-Level 2 (Yellow Belt) is COMPLETE.
-- Integrated StellarWalletsKit for comprehensive multi-wallet support.
-- Added graceful error handling and insufficient funds catching for transactions.
-- Written, compiled, and actively interacting with Live Soroban Smart Contracts for on-chain debts.
-- Established polling architecture using Soroban RPC to fetch and render Event Streams in real-time.
-- 5+ Git commits successfully logged.
+Level 3 (Orange Belt) is COMPLETE.
+- Built TxProgress — a 4-step visual stepper (Preparing → Signing → Submitting → Confirmed).
+- Implemented localStorage TTL caching for XLM balance (30 second cache with background revalidation).
+- Added Vitest test suite: 16 tests passing across splitLogic, cache, and formatting utilities.
+- Updated README with full Orange Belt documentation including test output snippet and caching code examples.
+- 5 Git commits logged for this belt.
 
 🧱 Next Steps
 
-Proceed to Level 3 (Orange Belt): Dashboard creation, Expense history generation, and Debt minimization logic mapping.
+Proceed to Level 4 (Green Belt): Group expenses, auto-settlement logic, CI/CD pipeline.
+
