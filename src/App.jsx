@@ -2,12 +2,17 @@ import { useState } from 'react';
 import Navbar from './components/Navbar';
 import BalanceCard from './components/BalanceCard';
 import ExpensePanel from './components/ExpensePanel';
+import Toast, { useToast } from './components/Toast';
 
 function App() {
   const [publicKey, setPublicKey] = useState("");
+  const { toasts, addToast } = useToast();
 
   return (
     <div className="min-h-screen bg-background text-text flex flex-col font-sans">
+      {/* Toast Notifications */}
+      <Toast toasts={toasts} onDismiss={(id) => {}} />
+
       {/* Navigation & Wallet Connect */}
       <Navbar publicKey={publicKey} setPublicKey={setPublicKey} />
 
@@ -37,7 +42,7 @@ function App() {
         ) : (
           <div className="w-full mt-6 sm:mt-10">
             <BalanceCard publicKey={publicKey} />
-            <ExpensePanel publicKey={publicKey} />
+            <ExpensePanel publicKey={publicKey} addToast={addToast} />
           </div>
         )}
       </main>

@@ -10,7 +10,7 @@ const sorobanServer = new StellarSdk.rpc.Server(sorobanUrl);
 const CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"; 
 const networkPassphrase = StellarSdk.Networks.TESTNET;
 
-export default function ExpensePanel({ publicKey }) {
+export default function ExpensePanel({ publicKey, addToast = () => {} }) {
   const [description, setDescription] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [numPeople, setNumPeople] = useState('');
@@ -36,11 +36,17 @@ export default function ExpensePanel({ publicKey }) {
             filters: [{ contractIds: [CONTRACT_ID] }]
           });
           if (events && events.length > 0) {
-            setLiveEvents(events.map(e => ({
+            const newEvents = events.map(e => ({
               id: e.id,
               type: 'Smart Contract Event',
               ledger: e.ledger
-            })));
+            }));
+            setLiveEvents(prev => {
+              if (newEvents.length > prev.length) {
+                addToast(`⚡ Live Soroban event detected on ledger ${newEvents[newEvents.length-1].ledger}`, 'info');
+              }
+              return newEvents;
+            });
           }
         } catch (e) {
           // Silent catch for background polling
@@ -80,6 +86,7 @@ export default function ExpensePanel({ publicKey }) {
     };
 
     setExpenses([...expenses, newExpense]);
+    addToast(`✅ Debt added: ${description} — ${share} XLM each`, 'success');
     setDescription('');
     setTotalAmount('');
     setNumPeople('');
@@ -170,6 +177,7 @@ export default function ExpensePanel({ publicKey }) {
       // Step 4: Confirmed
       setTxStep(4);
       setTxHash(sendResponse.hash);
+      addToast('🎉 Payment settled on-chain! Transaction confirmed.', 'success', 6000);
 
       setExpenses(expenses.map((ex) =>
         ex.id === expense.id ? { ...ex, settled: true } : ex
@@ -177,9 +185,13 @@ export default function ExpensePanel({ publicKey }) {
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data && err.response.data.extras) {
-        setTxError(`Horizon Error: ${err.response.data.title} - Ensure you have enough XLM.`);
+        const msg = `Horizon Error: ${err.response.data.title} - Ensure you have enough XLM.`;
+        setTxError(msg);
+        addToast(msg, 'error');
       } else {
-        setTxError(err.message || 'Transaction failed or was rejected by user.');
+        const msg = err.message || 'Transaction failed or was rejected by user.';
+        setTxError(msg);
+        addToast(msg, 'error');
       }
     } finally {
       setIsTxPending(false);
