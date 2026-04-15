@@ -270,14 +270,23 @@ export default function ExpensePanel({ publicKey }) {
             </span>
           </div>
           {txHash && (
-            <a
-              href={`https://stellar.expert/explorer/testnet/tx/${txHash}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs truncate block hover:underline opacity-80 pl-7"
-            >
-              Tx Hash: {txHash}
-            </a>
+            <div className="pl-7 space-y-2">
+              <p className="text-xs truncate opacity-80">
+                Tx Hash: {txHash}
+              </p>
+              <a
+                href={`https://stellar.expert/explorer/testnet/tx/${txHash}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-800/30 hover:bg-green-700/40 border border-green-600/30 rounded-lg text-xs font-medium text-green-300 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                View on Stellar Explorer
+              </a>
+            </div>
           )}
           {txError && <p className="text-xs pl-7 opacity-80">{txError}</p>}
         </div>
@@ -289,9 +298,18 @@ export default function ExpensePanel({ publicKey }) {
           <div className="p-6 border-b border-gray-900 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xl font-bold">My Debts (On-Chain)</h3>
-              <span className="text-xs text-textMuted">
+              <a
+                href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-textMuted hover:text-primary transition-colors flex items-center gap-1"
+              >
                 Contract: {CONTRACT_ID.slice(0,4)}...{CONTRACT_ID.slice(-4)}
-              </span>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
             
             {liveEvents.length > 0 && (
