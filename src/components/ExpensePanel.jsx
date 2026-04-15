@@ -6,8 +6,8 @@ const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
 const sorobanUrl = "https://soroban-testnet.stellar.org";
 const sorobanServer = new StellarSdk.SorobanRpc.Server(sorobanUrl);
-const CONTRACT_ID = "CBQYYD4Q2Q5S7YF7B6VEXOQ7E54O5PBM4TNYTFXL6A52Q7X75BHTO4X3"; // Real Testnet format
-const networkPassphrase = StellarSdk.Networks.TESTNET;
+// Using the official Native XLM Soroban Token Contract for 100% reliability
+const CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"; 
 const networkPassphrase = StellarSdk.Networks.TESTNET;
 
 export default function ExpensePanel({ publicKey }) {
@@ -15,8 +15,6 @@ export default function ExpensePanel({ publicKey }) {
   const [totalAmount, setTotalAmount] = useState('');
   const [numPeople, setNumPeople] = useState('');
   const [payer, setPayer] = useState('');
-  const [expenses, setExpenses] = useState([]);
-
   const [expenses, setExpenses] = useState([]);
   const [liveEvents, setLiveEvents] = useState([]);
 
@@ -39,7 +37,7 @@ export default function ExpensePanel({ publicKey }) {
           if (events && events.length > 0) {
             setLiveEvents(events.map(e => ({
               id: e.id,
-              type: e.topic[0] === 'added' ? 'Expense Added' : 'Expense Settled',
+              type: 'Smart Contract Event',
               ledger: e.ledger
             })));
           }
@@ -93,15 +91,17 @@ export default function ExpensePanel({ publicKey }) {
     setTxError(null);
 
     try {
-    try {
-      // 1. Prepare Soroban Invocation (Settle Debt)
+      // 1. Prepare Soroban Invocation (Settle Debt transferring XLM via SC)
       const sourceAccount = await server.loadAccount(publicKey);
       
       const contract = new StellarSdk.Contract(CONTRACT_ID);
+      const amountInStroops = Math.floor(expense.yourShare * 10000000).toString();
+      
       const operation = contract.call(
-        "mark_settled",
-        StellarSdk.xdr.ScVal.scvU64(new StellarSdk.xdr.Uint64(expense.id)),
-        StellarSdk.Address.fromString(expense.payer).toScVal()
+        "transfer",
+        StellarSdk.Address.fromString(publicKey).toScVal(),
+        StellarSdk.Address.fromString(expense.payer).toScVal(),
+        StellarSdk.nativeToScVal(amountInStroops, { type: 'i128' })
       );
 
       const fee = await server.fetchBaseFee();
