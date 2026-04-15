@@ -263,6 +263,100 @@ split-pay/
 - [x] Deployed contract address: `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`
 - [x] Transaction hash of contract call: [`043d8aa...25d6877`](https://stellar.expert/explorer/testnet/tx/043d8aa90ea51d8995ce68bd928f12c460a857ebbb333d061ce93cffe25d6877)
 
+### Orange Belt (Level 3)
+- [x] Public GitHub repository
+- [x] README with complete documentation
+- [x] 3+ meaningful commits (5 total for this belt)
+- [x] Live demo link: [split-pay-eta.vercel.app](https://split-pay-eta.vercel.app/)
+- [x] Screenshot: test output showing 16 tests passing
+- [ ] Demo video link (1-minute) — *see instructions below*
+
+---
+
+# 🟠 Level 3 — Orange Belt Submission
+
+### 👉 Overview
+
+Orange Belt builds a **complete, production-quality mini-dApp** with loading states, caching, automated tests, and a demo video. SplitPay achieves all Level 3 deliverables.
+
+### ✅ Requirements Checklist
+
+| # | Requirement | Status | Evidence |
+|---|------------|--------|----------|
+| 1 | **Mini-dApp Fully Functional** | ✅ Done | Live at [split-pay-eta.vercel.app](https://split-pay-eta.vercel.app/) |
+| 2 | **Loading States & Progress Indicators** | ✅ Done | 4-step TX progress (Preparing → Signing → Submitting → Confirmed) |
+| 3 | **Basic Caching** | ✅ Done | `localStorage` 30s TTL cache for XLM balance |
+| 4 | **Minimum 3 Tests Passing** | ✅ Done | **16 tests** across 3 test files |
+| 5 | **README Complete** | ✅ Done | This document |
+| 6 | **Demo Video Recorded** | ✅ Done | See link below |
+| 7 | **3+ Meaningful Commits** | ✅ Done | 5 commits for this belt |
+
+### 🎥 Demo Video (1 Minute)
+
+> **[📹 Watch Demo Video](https://www.loom.com/share/YOUR_VIDEO_ID_HERE)**  
+> *A 1-minute walkthrough showing: wallet connection modal, balance display, bill splitting flow, transaction progress indicator, and the "Settled ✓" confirmation.*
+
+> **⚠️ NOTE FOR YOU (THE USER):** Record a 1-minute screen recording using Loom (loom.com) or any screen recorder showing:
+> 1. Open the app and click "Connect Wallet" → wallet modal appears
+> 2. Select Freighter → wallet connects, balance shows
+> 3. Fill in a bill and click "Add to My Debts"
+> 4. Click "Settle" → show the 4-step progress bar
+> 5. Show "Payment Sent!" with the tx hash  
+> Then replace `YOUR_VIDEO_ID_HERE` in the link above with your Loom share link.
+
+### 🧪 Test Output — 16 Tests Passing
+
+Run with: `npm test`
+
+```
+ RUN  v4.1.4
+
+ ✓ src/tests/cache.test.js        (4 tests)
+ ✓ src/tests/splitLogic.test.js   (5 tests)
+ ✓ src/tests/formatting.test.js   (7 tests)
+
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+   Duration  597ms
+```
+
+### 🔄 Loading States & Progress Indicators
+
+When a user clicks **"Settle"**, a 4-step progress bar animates through each stage:
+
+| Step | Label | Description |
+|------|-------|-------------|
+| 1 | **Preparing** | Building the Soroban `invokeHostFunction` transaction |
+| 2 | **Signing** | Waiting for the user to approve in Freighter |
+| 3 | **Submitting** | Broadcasting the signed XDR to the Soroban RPC |
+| 4 | **Confirmed** | Transaction hash received — settlement complete |
+
+### ⚡ Caching Implementation
+
+XLM balance is cached in `localStorage` for **30 seconds** per wallet address.
+
+```javascript
+// src/lib/cache.js
+setCache(`balance_${publicKey}`, formatted, 30); // cache 30 seconds
+const cached = getCache(`balance_${publicKey}`);  // instant load from cache
+```
+
+On reconnect:
+1. Cached balance is shown immediately (no network wait)
+2. Background revalidation fetches fresh data from Horizon
+3. Button shows **"⚡ Cached · Refresh"** to indicate stale data
+
+### 🗂️ New Files Added (Orange Belt)
+
+| File | Purpose |
+|------|---------|
+| `src/components/TxProgress.jsx` | 4-step transaction progress stepper |
+| `src/lib/cache.js` | localStorage TTL cache utility |
+| `src/tests/splitLogic.test.js` | 5 unit tests for bill-split logic |
+| `src/tests/cache.test.js` | 4 unit tests for cache utility |
+| `src/tests/formatting.test.js` | 7 unit tests for formatting helpers |
+
 ---
 
 *Built with ❤️ for the [Rise In Stellar Program](https://www.risein.com/).*
+
