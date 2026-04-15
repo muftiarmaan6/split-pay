@@ -4,6 +4,10 @@ import { kit } from '../lib/swk';
 
 const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
+const sorobanUrl = "https://soroban-testnet.stellar.org";
+const sorobanServer = new StellarSdk.SorobanRpc.Server(sorobanUrl);
+const CONTRACT_ID = "CBQYYD4Q2Q5S7YF7B6VEXOQ7E54O5PBM4TNYTFXL6A52Q7X75BHTO4X3"; // Real Testnet format
+const networkPassphrase = StellarSdk.Networks.TESTNET;
 const networkPassphrase = StellarSdk.Networks.TESTNET;
 
 export default function ExpensePanel({ publicKey }) {
@@ -13,9 +17,39 @@ export default function ExpensePanel({ publicKey }) {
   const [payer, setPayer] = useState('');
   const [expenses, setExpenses] = useState([]);
 
+  const [expenses, setExpenses] = useState([]);
+  const [liveEvents, setLiveEvents] = useState([]);
+
   const [isTxPending, setIsTxPending] = useState(false);
   const [txHash, setTxHash] = useState(null);
   const [txError, setTxError] = useState(null);
+
+  // Poll for Soroban Events (Real-Time State Sync)
+  useEffect(() => {
+    let interval;
+    if (publicKey) {
+      interval = setInterval(async () => {
+        try {
+          const ledger = await sorobanServer.getLatestLedger();
+          const startLedger = Math.max(ledger.sequence - 100, 0); // last 100 ledgers
+          const { events } = await sorobanServer.getEvents({
+            startLedger,
+            filters: [{ contractIds: [CONTRACT_ID] }]
+          });
+          if (events && events.length > 0) {
+            setLiveEvents(events.map(e => ({
+              id: e.id,
+              type: e.topic[0] === 'added' ? 'Expense Added' : 'Expense Settled',
+              ledger: e.ledger
+            })));
+          }
+        } catch (e) {
+          // Silent catch for background polling
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [publicKey]);
 
   // Calculate the share for the current user
   const calcShare = (total, people) => {
@@ -59,24 +93,28 @@ export default function ExpensePanel({ publicKey }) {
     setTxError(null);
 
     try {
-      // 1. Load source account
+    try {
+      // 1. Prepare Soroban Invocation (Settle Debt)
       const sourceAccount = await server.loadAccount(publicKey);
+      
+      const contract = new StellarSdk.Contract(CONTRACT_ID);
+      const operation = contract.call(
+        "mark_settled",
+        StellarSdk.xdr.ScVal.scvU64(new StellarSdk.xdr.Uint64(expense.id)),
+        StellarSdk.Address.fromString(expense.payer).toScVal()
+      );
 
-      // 2. Build transaction — send the user's share to the payer
       const fee = await server.fetchBaseFee();
-      const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+      let transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
         fee: fee.toString(),
         networkPassphrase,
       })
-        .addOperation(
-          StellarSdk.Operation.payment({
-            destination: expense.payer,
-            asset: StellarSdk.Asset.native(),
-            amount: expense.yourShare.toFixed(7),
-          })
-        )
+        .addOperation(operation)
         .setTimeout(30)
         .build();
+
+      // 2. Prepare transaction via Soroban API
+      transaction = await sorobanServer.prepareTransaction(transaction);
 
       // 3. Sign with StellarWalletsKit
       const { signedTxXdr, error: signError } = await kit.signTransaction(
@@ -86,9 +124,11 @@ export default function ExpensePanel({ publicKey }) {
       if (signError) throw new Error(signError.message || 'Signing rejected');
       const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
 
-      // 4. Submit to Horizon
-      const response = await server.submitTransaction(signedTx);
-      setTxHash(response.hash);
+      // 4. Submit to Soroban RPC
+      const sendResponse = await sorobanServer.sendTransaction(signedTx);
+      if (sendResponse.status === "ERROR") throw new Error("Transaction submission failed.");
+      
+      setTxHash(sendResponse.hash);
 
       // 5. Mark as settled
       setExpenses(expenses.map((ex) =>
@@ -246,11 +286,19 @@ export default function ExpensePanel({ publicKey }) {
       {/* ── Pending Debts List ── */}
       {expenses.length > 0 && (
         <div className="bg-card rounded-2xl border border-gray-900 shadow-[0_0_20px_rgba(168,85,247,0.1)] overflow-hidden">
-          <div className="p-6 border-b border-gray-900 flex items-center justify-between">
-            <h3 className="text-xl font-bold">My Debts</h3>
-            <span className="text-xs text-textMuted">
-              {expenses.filter((e) => !e.settled).length} pending
-            </span>
+          <div className="p-6 border-b border-gray-900 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-bold">My Debts (On-Chain)</h3>
+              <span className="text-xs text-textMuted">
+                Contract: {CONTRACT_ID.slice(0,4)}...{CONTRACT_ID.slice(-4)}
+              </span>
+            </div>
+            
+            {liveEvents.length > 0 && (
+              <div className="text-xs text-green-400 bg-green-900/10 px-3 py-1 rounded inline-block animate-pulse w-fit border border-green-800/30">
+                Live Soroban Event: {liveEvents[liveEvents.length - 1].type} (Ledger {liveEvents[liveEvents.length - 1].ledger})
+              </div>
+            )}
           </div>
 
           <div className="divide-y divide-gray-900">
