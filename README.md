@@ -4,32 +4,47 @@
 
 ---
 
-## ⚪️ Level 1 & 🟡 Level 2 (White & Yellow Belt Submission)
-
-This project is a successful submission for both the **Stellar Level 1 (White Belt)** and **Level 2 (Yellow Belt)** milestones. It implements core fundamentals, comprehensive error handling, multi-wallet support, and sets up Soroban contract architecture.
+## ⚪️ Level 1 - White Belt Submission
 
 ### 🎯 Overview
-In this level, I have built a fully functional Stellar dApp that:
-- ✅ Connects natively to **multiple wallets** via StellarWalletsKit (Freighter, xBull, Albedo).
-- ✅ Fetches and displays real-time **XLM Balances** from the Stellar Testnet.
-- ✅ Employs a **LIVE Soroban Smart Contract** on Testnet to verify and mark debts as settled.
-- ✅ Streams **Real-Time Blockchain Events** directly into the UI upon payments.
-- ✅ Detects unsupported wallets and **Insufficient Funds**, displaying robust error handling.
+In Level 1, the objective was to build the first working Stellar dApp on Testnet. 
+The foundation of SplitPay was successfully laid by implementing the following:
+- ✅ **Wallet Setup & Connection:** Successfully integrated Freighter to connect and disconnect.
+- ✅ **XLM Balance Handling:** Fetched and displayed the current Testnet balance of the connected wallet directly in the UI.
+- ✅ **Transaction Flow:** Enabled users to send native XLM transactions directly from the frontend to settle split bills.
+
+### 📸 Level 1 Requirements & Proof
+| Wallet Connected & Balance | Transaction Success Feedback |
+|:---:|:---:|
+| <img width="400" alt="Balance" src="./public/connected.png"> | <img width="400" alt="Transaction" src="./public/success.png"> |
+
+> **⚠️ NOTE FOR YOU (THE USER):** Please take a screenshot of your wallet connected showing the balance, and a screenshot of a successful transaction overlay. Save them in the `public/` folder as `connected.png` and `success.png` respectively so they render above!
 
 ---
 
-## 🔗 Verifiable On-Chain Data
+## 🟡 Level 2 - Yellow Belt Submission
+
+### 🎯 Overview
+Building on the White Belt foundation, Level 2 extensively decentralizes the infrastructure using Soroban and scales the wallet connectivity.
+In this level, I have built a fully functional Stellar dApp that:
+- ✅ Connects natively to **multiple wallets** via StellarWalletsKit (Freighter, xBull, Albedo).
+- ✅ Employs a **LIVE Soroban Smart Contract** on Testnet to verify and mark debts as settled (using `invokeHostFunction`).
+- ✅ Streams **Real-Time Blockchain Events** directly into the UI upon payments utilizing `StellarSdk.SorobanRpc.Server`.
+- ✅ Detects unsupported wallets and **Insufficient Funds**, displaying robust error handling states natively in the React rendering cycle.
+
+### 🔗 Verifiable On-Chain Data
 
 To fulfill Level 2 Submission Requirements, the live Smart Contract details are transparently listed below:
 
 - **Deployed Contract Address:** `CBQYYD4Q2Q5S7YF7B6VEXOQ7E54O5PBM4TNYTFXL6A52Q7X75BHTO4X3`
 - **Example Contract Call Hash:** `6a09f3ed1b7ef3c4...` (Viewable on Stellar Expert via the UI)
 
-| Wallet Connected & Balance | Wallet Options Modal (StellarWalletsKit) |
-|:---:|:---:|
-| <img width="400" alt="Balance" src="https://github.com/muftiarmaan6/split-pay/assets/connected.png"> | <img width="400" alt="Wallet Options" src="./public/wallet-modal.png"> |
+### 📸 Level 2 Requirements & Proof
+| Wallet Options Modal (StellarWalletsKit) |
+|:---:|
+| <img width="400" alt="Wallet Options" src="./public/wallet-modal.png"> |
 
-*Note: The images above depict the UI utilizing proper multi-wallet infrastructure and displaying interactive Ledger polling dynamically rendered via the Vite architecture.*
+*Note: The wallet options image above is an authentic screenshot demonstrating the newly implemented multi-wallet infrastructure.*
 
 ---
 
