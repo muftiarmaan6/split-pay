@@ -4,17 +4,18 @@
 
 ---
 
-## ⚪️ Level 1 - White Belt Submission (Rise In)
+## ⚪️ Level 1 & 🟡 Level 2 (White & Yellow Belt Submission)
 
-This project is a successful submission for the **Stellar Level 1 – White Belt** milestone. It implements all core fundamentals of Stellar development: wallet integration, balance management, and testnet transactions.
+This project is a successful submission for both the **Stellar Level 1 (White Belt)** and **Level 2 (Yellow Belt)** milestones. It implements core fundamentals, comprehensive error handling, multi-wallet support, and sets up Soroban contract architecture.
 
 ### 🎯 Overview
 In this level, I have built a fully functional Stellar dApp that:
-- ✅ Connects to the **Freighter Wallet**.
+- ✅ Connects natively to **multiple wallets** via StellarWalletsKit (Freighter, xBull, Albedo).
 - ✅ Fetches and displays real-time **XLM Balances** from the Stellar Testnet.
 - ✅ Executes **Native XLM Transactions** to settle shared expenses.
 - ✅ Provides immediate **Transaction Feedback** (hashes and success states).
-- ✅ Follows modern development standards with a sleek, responsive UI.
+- ✅ Detects unsupported wallets and **Insufficient Funds**, displaying robust error handling.
+- ✅ Scaffolds the foundation for **Soroban Smart Contracts** to log debts on-chain.
 
 ---
 
@@ -28,10 +29,11 @@ In this level, I have built a fully functional Stellar dApp that:
 
 ## 🚀 Key Features
 
-- **Freighter Wallet Integration**: Securely connect and disconnect your Stellar wallet.
+- **Multi-Wallet Support**: Powered by `StellarWalletsKit`, letting users connect their preferred Stellar ecosystem wallet.
 - **Dynamic Split Logic**: Input a total bill and the number of people; the app instantly calculates your precise share.
 - **One-Click Settlement**: Pay the calculated share directly to the person who covered the bill with a single transaction.
-- **Stellar Expert Links**: Every transaction includes a direct link to view the details on the Stellar Expert explorer.
+- **Robust Error Handling**: Real-time checking for un-funded accounts, declined transactions, and Horizon network issues.
+- **Soroban Ready**: Contract scaffolding is set up (`lib.rs`) to migrate the debts to on-chain state vectors.
 - **Premium Dark UI**: Built with a modern, glassmorphic aesthetic using Tailwind CSS.
 
 ---
