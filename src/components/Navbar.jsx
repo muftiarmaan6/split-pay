@@ -1,49 +1,37 @@
-import { useState, useEffect } from 'react';
-import { isConnected, isAllowed, requestAccess, getAddress } from '@stellar/freighter-api';
+import { useState } from 'react';
+import { kit } from '../lib/swk';
 
 export default function Navbar({ publicKey, setPublicKey }) {
   const [isConnecting, setIsConnecting] = useState(false);
 
-  useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        const { isAllowed: allowed } = await isAllowed();
-        if (allowed) {
-          const { address } = await getAddress();
-          if (address) setPublicKey(address);
-        }
-      } catch (error) {
-        console.error("Passive connection check failed:", error);
-      }
-    };
-    checkConnection();
-  }, [setPublicKey]);
-
   const connectWallet = async () => {
     setIsConnecting(true);
     try {
-      const { isConnected: installed } = await isConnected();
-      if (!installed) {
-        alert("Freighter browser extension not detected. Please install Freighter.");
-        setIsConnecting(false);
-        return;
-      }
-      
-      const { address, error: accessError } = await requestAccess();
-      if (accessError) {
-        alert("Access denied by user.");
-      } else if (address) {
-        setPublicKey(address);
-      }
+      const access = await kit.openModal({
+        allowedWallets: [
+          'xbull',
+          'freighter',
+          'albedo',
+          'walletConnect'
+        ],
+        onWalletSelected: async (option) => {
+          kit.setWallet(option.id);
+          const { address } = await kit.getAddress();
+          if (address) {
+            setPublicKey(address);
+          }
+        }
+      });
     } catch (error) {
       console.error("Manual connection failed:", error);
-      alert(`Wallet Connection Error:\n${error}\n${error.message}\nIf this persists, lock and unlock Freighter.`);
+      alert(`Wallet Connection Error:\n${error}\n${error.message}`);
     }
     setIsConnecting(false);
   };
 
   const disconnectWallet = () => {
     setPublicKey("");
+    // In a real app we might also kit.disconnect() if the provider supports it
   };
 
   const formatKey = (key) => {
