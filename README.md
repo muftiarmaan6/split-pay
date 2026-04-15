@@ -306,6 +306,10 @@ Run with: `npm test`
    Duration  597ms
 ```
 
+**Screenshot: Test Output**
+
+<img width="700" alt="16 tests passing in Vitest" src="./public/tests-passing.png">
+
 ### 🔄 Loading States & Progress Indicators
 
 When a user clicks **"Settle"**, a 4-step progress bar animates through each stage:
