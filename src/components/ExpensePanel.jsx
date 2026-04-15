@@ -4,7 +4,7 @@ import * as StellarSdk from '@stellar/stellar-sdk';
 const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
 const sorobanUrl = "https://soroban-testnet.stellar.org";
-const sorobanServer = new StellarSdk.SorobanRpc.Server(sorobanUrl);
+const sorobanServer = new StellarSdk.rpc.Server(sorobanUrl);
 // Using the official Native XLM Soroban Token Contract for 100% reliability
 const CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"; 
 const networkPassphrase = StellarSdk.Networks.TESTNET;
