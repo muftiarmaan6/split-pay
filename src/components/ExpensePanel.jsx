@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as StellarSdk from '@stellar/stellar-sdk';
+import TxProgress from './TxProgress';
 
 const horizonUrl = "https://horizon-testnet.stellar.org";
 const server = new StellarSdk.Horizon.Server(horizonUrl);
@@ -18,6 +19,7 @@ export default function ExpensePanel({ publicKey }) {
   const [liveEvents, setLiveEvents] = useState([]);
 
   const [isTxPending, setIsTxPending] = useState(false);
+  const [txStep, setTxStep] = useState(null); // 1-4 for progress indicator
   const [txHash, setTxHash] = useState(null);
   const [txError, setTxError] = useState(null);
 
@@ -86,11 +88,12 @@ export default function ExpensePanel({ publicKey }) {
 
   const handleSettle = async (expense) => {
     setIsTxPending(true);
+    setTxStep(1); // Step 1: Preparing
     setTxHash(null);
     setTxError(null);
 
     try {
-      // 1. Prepare Soroban Invocation (Settle Debt transferring XLM via SC)
+      // Step 1: Prepare Soroban Invocation
       const sourceAccount = await server.loadAccount(publicKey);
       
       const contract = new StellarSdk.Contract(CONTRACT_ID);
@@ -112,17 +115,16 @@ export default function ExpensePanel({ publicKey }) {
         .setTimeout(30)
         .build();
 
-      // 2. Prepare transaction via Soroban API
       transaction = await sorobanServer.prepareTransaction(transaction);
 
-      // 3. Sign with Freighter
+      // Step 2: Sign with Freighter
+      setTxStep(2);
       const freighterApi = await import('@stellar/freighter-api');
       const signResult = await freighterApi.signTransaction(transaction.toXDR(), {
         network: 'TESTNET',
         networkPassphrase,
       });
       
-      // Handle v6 API — signResult can be string or { signedTxXdr, error }
       let signedXdr;
       if (typeof signResult === 'string') {
         signedXdr = signResult;
@@ -136,13 +138,15 @@ export default function ExpensePanel({ publicKey }) {
 
       const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, networkPassphrase);
 
-      // 4. Submit to Soroban RPC
+      // Step 3: Submit
+      setTxStep(3);
       const sendResponse = await sorobanServer.sendTransaction(signedTx);
       if (sendResponse.status === "ERROR") throw new Error("Transaction submission failed.");
       
+      // Step 4: Confirmed
+      setTxStep(4);
       setTxHash(sendResponse.hash);
 
-      // 5. Mark as settled
       setExpenses(expenses.map((ex) =>
         ex.id === expense.id ? { ...ex, settled: true } : ex
       ));
@@ -153,9 +157,11 @@ export default function ExpensePanel({ publicKey }) {
       } else {
         setTxError(err.message || 'Transaction failed or was rejected by user.');
       }
+    } finally {
+      setIsTxPending(false);
+      // Keep step 4 visible for 3s on success, else clear
+      if (!txHash) setTimeout(() => setTxStep(null), 3000);
     }
-
-    setIsTxPending(false);
   };
 
   return (
@@ -255,6 +261,9 @@ export default function ExpensePanel({ publicKey }) {
           </button>
         </form>
       </div>
+
+      {/* ── Transaction Progress Stepper ── */}
+      <TxProgress step={txStep} />
 
       {/* ── Transaction Feedback ── */}
       {(txHash || txError) && (
