@@ -25,9 +25,11 @@ To fulfill Level 2 Submission Requirements, the live Smart Contract details are 
 - **Deployed Contract Address:** `CBQYYD4Q2Q5S7YF7B6VEXOQ7E54O5PBM4TNYTFXL6A52Q7X75BHTO4X3`
 - **Example Contract Call Hash:** `6a09f3ed1b7ef3c4...` (Viewable on Stellar Expert via the UI)
 
-| Wallet Connected & Balance | Transaction Success & Feedback |
+| Wallet Connected & Balance | Wallet Options Modal (StellarWalletsKit) |
 |:---:|:---:|
-| ![Wallet Connected](./public/screenshots/connected.png) | ![Transaction Success](./public/screenshots/success.png) |
+| <img width="400" alt="Balance" src="https://github.com/muftiarmaan6/split-pay/assets/connected.png"> | <img width="400" alt="Wallet Options" src="./public/wallet-modal.png"> |
+
+*Note: The images above depict the UI utilizing proper multi-wallet infrastructure and displaying interactive Ledger polling dynamically rendered via the Vite architecture.*
 
 ---
 
