@@ -1,6 +1,5 @@
 #![no_std]
 use soroban_sdk::{contract, contractimpl, contracttype, token, Env, String, Address, Symbol};
-
 /// Represents a bill-splitting expense stored on-chain.
 #[contracttype]
 pub struct Expense {
