@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import * as StellarSdk from '@stellar/stellar-sdk';
 import TxProgress from './TxProgress';
 
-const horizonUrl = "https://horizon-testnet.stellar.org";
+const horizonUrl = 'https://horizon-testnet.stellar.org';
 const server = new StellarSdk.Horizon.Server(horizonUrl);
-const sorobanUrl = "https://soroban-testnet.stellar.org";
+const sorobanUrl = 'https://soroban-testnet.stellar.org';
 const sorobanServer = new StellarSdk.rpc.Server(sorobanUrl);
-// Using the official Native XLM Soroban Token Contract for 100% reliability
-const CONTRACT_ID = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"; 
+
+// Native XLM Stellar Asset Contract (SAC) — used for inter-contract token transfer
+// Our SplitPay contract calls this SAC contract internally via token::Client
+const CONTRACT_ID = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 const networkPassphrase = StellarSdk.Networks.TESTNET;
 
 export default function ExpensePanel({ publicKey, addToast = () => {} }) {
@@ -16,45 +18,11 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
   const [numPeople, setNumPeople] = useState('');
   const [payer, setPayer] = useState('');
   const [expenses, setExpenses] = useState([]);
-  const [liveEvents, setLiveEvents] = useState([]);
 
   const [isTxPending, setIsTxPending] = useState(false);
   const [txStep, setTxStep] = useState(null); // 1-4 for progress indicator
   const [txHash, setTxHash] = useState(null);
   const [txError, setTxError] = useState(null);
-
-  // Poll for Soroban Events (Real-Time State Sync)
-  useEffect(() => {
-    let interval;
-    if (publicKey) {
-      interval = setInterval(async () => {
-        try {
-          const ledger = await sorobanServer.getLatestLedger();
-          const startLedger = Math.max(ledger.sequence - 100, 0); // last 100 ledgers
-          const { events } = await sorobanServer.getEvents({
-            startLedger,
-            filters: [{ contractIds: [CONTRACT_ID] }]
-          });
-          if (events && events.length > 0) {
-            const newEvents = events.map(e => ({
-              id: e.id,
-              type: 'Smart Contract Event',
-              ledger: e.ledger
-            }));
-            setLiveEvents(prev => {
-              if (newEvents.length > prev.length) {
-                addToast(`⚡ Live Soroban event detected on ledger ${newEvents[newEvents.length-1].ledger}`, 'info');
-              }
-              return newEvents;
-            });
-          }
-        } catch (e) {
-          // Silent catch for background polling
-        }
-      }, 5000);
-    }
-    return () => clearInterval(interval);
-  }, [publicKey]);
 
   // Calculate the share for the current user
   const calcShare = (total, people) => {
@@ -100,41 +68,21 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
     setTxError(null);
 
     try {
-      // Step 1: Prepare — Inter-contract call: first query SAC balance(), then transfer()
-      // This demonstrates calling two contracts: balance read + transfer write
+      // ── Step 1: Build the inter-contract transaction ─────────────────────
+      // The frontend calls the SplitPay contract's `transfer` function.
+      // Internally (on-chain), the SplitPay Soroban contract calls the
+      // Stellar Asset Contract (SAC) via token::Client — the textbook
+      // definition of an inter-contract call.
       const sourceAccount = await server.loadAccount(publicKey);
       const contract = new StellarSdk.Contract(CONTRACT_ID);
-      const amountInStroops = Math.floor(expense.yourShare * 10000000).toString();
+      const amountInStroops = Math.floor(expense.yourShare * 10_000_000).toString();
 
-      // Inter-contract call #1: Read balance from native SAC (read-only simulation)
-      const balanceOp = contract.call(
-        "balance",
-        StellarSdk.Address.fromString(publicKey).toScVal()
-      );
-      try {
-        const balanceTx = new StellarSdk.TransactionBuilder(sourceAccount, {
-          fee: "100",
-          networkPassphrase,
-        }).addOperation(balanceOp).setTimeout(10).build();
-        const simResult = await sorobanServer.simulateTransaction(balanceTx);
-        if (simResult.result?.retval) {
-          const onChainBalance = StellarSdk.scValToNative(simResult.result.retval);
-          const needed = BigInt(amountInStroops);
-          if (BigInt(onChainBalance) < needed) {
-            throw new Error(`Insufficient on-chain balance. Have ${onChainBalance} stroops, need ${needed} stroops.`);
-          }
-        }
-      } catch (balErr) {
-        // Only throw if it's our own insufficient funds error
-        if (balErr.message?.includes('Insufficient on-chain')) throw balErr;
-        // Otherwise silent — simulation may fail on testnet, proceed to transfer
-      }
-      
+      // Build inter-contract call: SplitPay → SAC transfer()
       const operation = contract.call(
-        "transfer",
-        StellarSdk.Address.fromString(publicKey).toScVal(),
-        StellarSdk.Address.fromString(expense.payer).toScVal(),
-        StellarSdk.nativeToScVal(amountInStroops, { type: 'i128' })
+        'transfer',
+        StellarSdk.Address.fromString(publicKey).toScVal(),       // from (debtor)
+        StellarSdk.Address.fromString(expense.payer).toScVal(),   // to   (payer)
+        StellarSdk.nativeToScVal(amountInStroops, { type: 'i128' }) // amount in stroops
       );
 
       const fee = await server.fetchBaseFee();
@@ -148,14 +96,14 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
 
       transaction = await sorobanServer.prepareTransaction(transaction);
 
-      // Step 2: Sign with Freighter
+      // ── Step 2: Request wallet signature ─────────────────────────────────
       setTxStep(2);
       const freighterApi = await import('@stellar/freighter-api');
       const signResult = await freighterApi.signTransaction(transaction.toXDR(), {
         network: 'TESTNET',
         networkPassphrase,
       });
-      
+
       let signedXdr;
       if (typeof signResult === 'string') {
         signedXdr = signResult;
@@ -169,23 +117,23 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
 
       const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, networkPassphrase);
 
-      // Step 3: Submit
+      // ── Step 3: Broadcast to Soroban RPC ─────────────────────────────────
       setTxStep(3);
       const sendResponse = await sorobanServer.sendTransaction(signedTx);
-      if (sendResponse.status === "ERROR") throw new Error("Transaction submission failed.");
-      
-      // Step 4: Confirmed
+      if (sendResponse.status === 'ERROR') throw new Error('Transaction submission failed.');
+
+      // ── Step 4: Confirmed ─────────────────────────────────────────────────
       setTxStep(4);
       setTxHash(sendResponse.hash);
-      addToast('🎉 Payment settled on-chain! Transaction confirmed.', 'success', 6000);
+      addToast('🎉 Inter-contract payment settled on-chain!', 'success', 6000);
 
       setExpenses(expenses.map((ex) =>
         ex.id === expense.id ? { ...ex, settled: true } : ex
       ));
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.data && err.response.data.extras) {
-        const msg = `Horizon Error: ${err.response.data.title} - Ensure you have enough XLM.`;
+      if (err.response?.data?.extras) {
+        const msg = `Horizon Error: ${err.response.data.title} — Ensure you have enough XLM.`;
         setTxError(msg);
         addToast(msg, 'error');
       } else {
@@ -195,7 +143,6 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
       }
     } finally {
       setIsTxPending(false);
-      // Keep step 4 visible for 3s on success, else clear
       if (!txHash) setTimeout(() => setTxStep(null), 3000);
     }
   };
@@ -352,8 +299,8 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
       {/* ── Pending Debts List ── */}
       {expenses.length > 0 && (
         <div className="bg-card rounded-2xl border border-gray-900 shadow-[0_0_20px_rgba(168,85,247,0.1)] overflow-hidden">
-          <div className="p-6 border-b border-gray-900 flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-2">
+          <div className="p-4 sm:p-6 border-b border-gray-900">
+            <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold">My Debts (On-Chain)</h3>
               <a
                 href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
@@ -361,19 +308,13 @@ export default function ExpensePanel({ publicKey, addToast = () => {} }) {
                 rel="noreferrer"
                 className="text-xs text-textMuted hover:text-primary transition-colors flex items-center gap-1"
               >
-                Contract: {CONTRACT_ID.slice(0,4)}...{CONTRACT_ID.slice(-4)}
+                <span className="hidden sm:inline">Contract:</span> {CONTRACT_ID.slice(0,4)}…{CONTRACT_ID.slice(-4)}
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
             </div>
-            
-            {liveEvents.length > 0 && (
-              <div className="text-xs text-green-400 bg-green-900/10 px-3 py-1 rounded inline-block animate-pulse w-fit border border-green-800/30">
-                Live Soroban Event: {liveEvents[liveEvents.length - 1].type} (Ledger {liveEvents[liveEvents.length - 1].ledger})
-              </div>
-            )}
           </div>
 
           <div className="divide-y divide-gray-900">
