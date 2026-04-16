@@ -2,6 +2,7 @@ import { useState, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import BalanceCard from './components/BalanceCard';
 import Toast, { useToast } from './components/Toast';
+import EventFeed from './components/EventFeed';
 
 // Lazy load ExpensePanel for code splitting — improves initial load time
 const ExpensePanel = lazy(() => import('./components/ExpensePanel'));
@@ -28,7 +29,7 @@ function PanelSkeleton() {
 }
 
 function App() {
-  const [publicKey, setPublicKey] = useState("");
+  const [publicKey, setPublicKey] = useState('');
   const { toasts, addToast } = useToast();
 
   return (
@@ -41,7 +42,7 @@ function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 w-full mx-auto px-4 sm:px-6 max-w-5xl flex flex-col items-center mt-8 sm:mt-12 pb-16 sm:pb-24">
-        <div className="w-full max-w-2xl text-center space-y-4 sm:space-y-6">
+        <div className="w-full max-w-2xl text-center space-y-3 sm:space-y-5">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
             Split expenses on <span className="text-primary italic">Stellar</span>
           </h2>
@@ -65,6 +66,10 @@ function App() {
         ) : (
           <div className="w-full mt-6 sm:mt-10">
             <BalanceCard publicKey={publicKey} />
+
+            {/* ✨ Advanced Event Streaming — Live Network Feed */}
+            <EventFeed publicKey={publicKey} />
+
             {/* Suspense boundary — shows skeleton while ExpensePanel bundle loads */}
             <Suspense fallback={<PanelSkeleton />}>
               <ExpensePanel publicKey={publicKey} addToast={addToast} />
@@ -72,6 +77,23 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Mobile-friendly footer */}
+      <footer className="w-full border-t border-gray-900 py-4 px-4 text-center text-xs text-textMuted">
+        SplitPay · Built on{' '}
+        <a href="https://stellar.org" target="_blank" rel="noreferrer" className="text-primary hover:underline">
+          Stellar Testnet
+        </a>{' '}
+        · Contract{' '}
+        <a
+          href="https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+          target="_blank"
+          rel="noreferrer"
+          className="font-mono text-primary hover:underline"
+        >
+          CDLZ…CYSC
+        </a>
+      </footer>
     </div>
   );
 }
