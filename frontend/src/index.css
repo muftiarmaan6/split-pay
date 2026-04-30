@@ -1,0 +1,389 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ════════════════════════════════════════════════
+   SPLITPAY — BRUTALIST DESIGN SYSTEM
+   ════════════════════════════════════════════════ */
+
+:root {
+  --black: #0a0a0a;
+  --white: #f0ede6;
+  --yellow: #f5e642;
+  --red: #ff2b2b;
+  --green: #00ff88;
+  --blue: #0062ff;
+  --gray: #1a1a1a;
+  --gray2: #2a2a2a;
+  --gray3: #3a3a3a;
+  --border: 2px solid var(--white);
+  --border-yellow: 2px solid var(--yellow);
+  --border-red: 2px solid var(--red);
+  --border-green: 2px solid var(--green);
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+    cursor: crosshair;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* SCANLINES */
+  body.scanlines-on::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  ::selection {
+    background: var(--yellow);
+    color: var(--black);
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    background: var(--gray);
+    border: var(--border);
+    color: var(--white);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.1s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  input:focus {
+    border-color: var(--yellow);
+    background: var(--gray2);
+  }
+
+  input::placeholder {
+    opacity: 0.25;
+  }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes toastIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes glitchText {
+  0%, 100% { transform: none; }
+  25% { transform: translate(-1px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(15deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes floatReverse {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(30px) rotate(-15deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@layer components {
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: var(--border);
+    background: transparent;
+    color: var(--white);
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s, transform 0.05s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    transform: translateX(-100%);
+    transition: transform 0.15s;
+    z-index: -1;
+  }
+
+  .btn:hover::before { transform: translateX(0); }
+  .btn:hover { color: var(--black); }
+  .btn:active { transform: translate(2px, 2px); }
+
+  .btn-yellow {
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+  .btn-yellow::before { background: var(--yellow); }
+  .btn-yellow:hover { color: var(--black); }
+
+  .btn-red {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .btn-red::before { background: var(--red); }
+  .btn-red:hover { color: var(--white); }
+
+  .btn-green {
+    border-color: var(--green);
+    color: var(--green);
+    font-size: 13px;
+    padding: 14px 32px;
+  }
+  .btn-green::before { background: var(--green); }
+  .btn-green:hover { color: var(--black); }
+
+  .btn-lg {
+    padding: 18px 40px;
+    font-size: 14px;
+    letter-spacing: 4px;
+    width: 100%;
+  }
+
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .btn:disabled:hover::before { transform: translateX(-100%); }
+  .btn:disabled:hover { color: inherit; }
+
+  /* ── PANEL BASE ── */
+  .panel {
+    border: var(--border);
+    border-top: none;
+    padding: 32px;
+    position: relative;
+  }
+
+  .panel-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .panel-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray3);
+  }
+
+  /* ── SPINNER ── */
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--yellow);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  /* ── SEPARATOR ── */
+  .sep {
+    width: 100%;
+    height: 1px;
+    background: var(--gray3);
+    margin: 20px 0;
+  }
+
+  .mono-small {
+    font-size: 11px;
+    opacity: 0.4;
+    letter-spacing: 1px;
+  }
+
+  /* ── CACHE BADGE ── */
+  .cache-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--gray3);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .cache-badge.fresh { border-color: var(--green); color: var(--green); }
+  .cache-badge.cached { border-color: var(--yellow); color: var(--yellow); }
+
+  /* ── INPUT LABEL ── */
+  .input-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white);
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+
+  .input-group {
+    margin-bottom: 20px;
+  }
+
+  .input-error {
+    border-color: var(--red) !important;
+  }
+}
+
+@layer utilities {
+  .scrollbar-brutal {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray3) var(--black);
+  }
+
+  .scrollbar-brutal::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-brutal::-webkit-scrollbar-track {
+    background: var(--black);
+  }
+
+  .scrollbar-brutal::-webkit-scrollbar-thumb {
+    background: var(--gray3);
+  }
+
+  .anim-blink {
+    animation: blink 2s infinite;
+  }
+
+  .anim-pulse {
+    animation: pulse 1.5s infinite;
+  }
+
+  .anim-slide-in {
+    animation: slideIn 0.3s ease;
+  }
+
+  .anim-fade-up {
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  .anim-toast {
+    animation: toastIn 0.2s ease;
+  }
+
+  .anim-float {
+    animation: float 12s ease-in-out infinite;
+  }
+
+  .anim-float-reverse {
+    animation: floatReverse 15s ease-in-out infinite;
+  }
+
+  .anim-marquee {
+    display: flex;
+    white-space: nowrap;
+    animation: marqueeScroll 20s linear infinite;
+  }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .panel {
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  .event-row-grid {
+    grid-template-columns: 90px 1fr 80px !important;
+  }
+
+  .event-time-col {
+    display: none !important;
+  }
+
+  .nav-status-center {
+    display: none !important;
+  }
+}
