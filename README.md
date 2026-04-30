@@ -25,18 +25,16 @@ GitHub Actions runs on every push to `main`:
 Here are some UI screenshots of the project highlighting the newly upgraded Brutalist interface:
 
 ## Home Page (Hero Section)
-![Home Page - Brutalist Landing UI](./screenshots/Web%20UI%20Screenshots/home.png)
+![Home Page - Brutalist Landing UI](./screenshots/Home%20page.png)
 
-## Dashboard (Wallet Connection & Meta-data)
-![User Dashboard - Active Connection](./screenshots/Web%20UI%20Screenshots/dashboard.png)
+## Dashboard (Wallet Connection & Stats)
+![User Dashboard - Active Connection](./screenshots/Dashboard.png)
 
-## Expenses Page (Pending Settlements)
-![Expenses - Active Split Listings](./screenshots/Web%20UI%20Screenshots/expenses.png)
+## Expenses Management (Active Split Listings)
+![Expenses - Active Split Listings](./screenshots/Expense%20Page.png)
 
-## Transaction Execution
-![Transaction Modals - Freighter Signing](./screenshots/Web%20UI%20Screenshots/transaction.png)
-
-*(Add your high-res screenshots to the `screenshots/Web UI Screenshots` folder)*
+## Expense History & Settlement Tracking
+![Expense History - Past Settlements](./screenshots/Expense%20history.png)
 
 ---
 
