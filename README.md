@@ -20,6 +20,14 @@ GitHub Actions runs on every push to `main`:
 
 [![CI](https://github.com/muftiarmaan6/split-pay/actions/workflows/ci.yml/badge.svg)](https://github.com/muftiarmaan6/split-pay/actions/workflows/ci.yml)
 
+## 🚀 Live Deployment
+
+The SplitPay smart contract is deployed on the **Stellar Testnet**:
+
+- **Contract ID**: `CA2T3MHAHMEDQOS2USPCKD323VQKGS6KU22HGDOKECCWWBRTDGIIDANB`
+- **WASM Hash**: `CCQ4HASUBNKJMK2U47SWQXIBATOCCRA42VBQT5FYHGRJBSD5XZ2SUJKJ`
+- **Explorer**: [View on StellarExpert](https://stellar.expert/explorer/testnet/contract/CA2T3MHAHMEDQOS2USPCKD323VQKGS6KU22HGDOKECCWWBRTDGIIDANB)
+
 ### 🌐 Live Preview
 
 Here are some UI screenshots of the project highlighting the newly upgraded Brutalist interface:
