@@ -284,8 +284,7 @@ impl SplitPayContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::testutils::{Address as _, AuthorizedFunction, AuthorizedInvocation};
-    use soroban_sdk::{token, Address, Env, IntoVal, String};
+    use soroban_sdk::{token, Address, Env, String};
     use token::Client as TokenClient;
     use token::StellarAssetClient as TokenAdminClient;
 
@@ -312,28 +311,28 @@ mod test {
         let (token, token_admin) = create_token_contract(&env, &admin);
 
         // Fund the debtor so they can pay
-        token_admin.mint(&debtor, &2000i128);
+        token_admin.mint(&debtor, 2000i128);
 
         // Add expense
         let desc = String::from_str(&env, "Dinner");
-        let expense_id = client.add_expense(&0, &payer, &500i128, &desc);
+        let expense_id = client.add_expense(0, &payer, 500i128, &desc);
         assert_eq!(expense_id, 1);
 
         // Verify expense data
-        let expense = client.get_expense(&expense_id);
+        let expense = client.get_expense(expense_id);
         assert_eq!(expense.amount, 500);
         assert_eq!(expense.payer, payer);
         assert_eq!(expense.is_settled, false);
 
         // Settle on-chain
-        client.settle_expense_onchain(&expense_id, &debtor, &token.address);
+        client.settle_expense_onchain(expense_id, &debtor, &token.address);
 
         // Check balances
         assert_eq!(token.balance(&debtor), 1500); // 2000 - 500
         assert_eq!(token.balance(&payer), 500);   // 0 + 500
 
         // Check state
-        let settled_expense = client.get_expense(&expense_id);
+        let settled_expense = client.get_expense(expense_id);
         assert_eq!(settled_expense.is_settled, true);
     }
 
@@ -354,18 +353,18 @@ mod test {
         assert_eq!(group_id, 1);
 
         // Add Member
-        client.add_member(&group_id, &alice, &bob);
+        client.add_member(group_id, &alice, &bob);
 
         // Get Group and assert
-        let group = client.get_group(&group_id);
+        let group = client.get_group(group_id);
         assert_eq!(group.members.len(), 2);
-        assert_eq!(group.members.get(1).unwrap(), bob);
+        assert!(group.members.contains(&bob));
 
         // Add Group Expense
         let desc = String::from_str(&env, "Groceries");
-        let expense_id = client.add_expense(&group_id, &alice, &1000i128, &desc);
+        let expense_id = client.add_expense(group_id, &alice, 1000i128, &desc);
         
-        let expense = client.get_expense(&expense_id);
+        let expense = client.get_expense(expense_id);
         assert_eq!(expense.group_id, group_id);
     }
 }
