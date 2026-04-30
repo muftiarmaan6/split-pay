@@ -284,6 +284,7 @@ impl SplitPayContract {
 #[cfg(test)]
 mod test {
     use super::*;
+    use soroban_sdk::testutils::{Address as _};
     use soroban_sdk::{token, Address, Env, String};
     use token::Client as TokenClient;
     use token::StellarAssetClient as TokenAdminClient;
